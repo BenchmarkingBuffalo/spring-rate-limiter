@@ -1,0 +1,83 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group = 'io.github.benchmarkingbuffalo'
+archivesBaseName = 'spring-rate-limiter'
+version = '0.0.1-SNAPSHOT'
+description = ''
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    withJavadocJar()
+    withSourcesJar()
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.17.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-engine:1.10.0'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            pom {
+                name.set('Spring Rate Limiter')
+                description.set('A rate limiter for Spring applications')
+                url.set('https://github.com/BenchmarkingBuffalo/spring-rate-limiter')
+
+                licenses {
+                    license {
+                        name.set('The MIT License')
+                        url.set('https://opensource.org/licenses/MIT')
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set('BenchmarkingBuffalo')
+                        name.set('Lasse Wulff')
+                    }
+                }
+
+                scm {
+                    connection.set('scm:git:git://github.com/BenchmarkingBuffalo/spring-rate-limiter.git')
+                    developerConnection.set('scm:git:ssh://github.com/BenchmarkingBuffalo/spring-rate-limiter.git')
+                    url.set('https://github.com/BenchmarkingBuffalo/spring-rate-limiter')
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'MavenCentral'
+            url = uri('https://oss.sonatype.org/service/local/staging/deploy/maven2/') // Replace with the correct URL if needed
+            credentials {
+                username = project.findProperty('ossrhUsername') ?: ''
+                password = project.findProperty('ossrhPassword') ?: ''
+            }
+        }
+    }
+}
+
+signing {
+    useInMemoryPgpKeys(project.findProperty('signingKey') ?: '', project.findProperty('signingPassword') ?: '')
+    sign publishing.publications.mavenJava
+}
